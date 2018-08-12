@@ -2,29 +2,18 @@ require 'nokogiri'
 require 'open-uri'
 require 'aws-sdk-s3'
 require 'uri'
-
-
 require 'pp'
+require 'json'
 
-WP_RSS_FEED="http://www.christchurchmayfair.org/our-talks/podcast/"
+config = JSON.parse(File.read("config.json"),:symbolize_names => true)
 
-mapping = {
-  title: "title/text()",
-  speaker: "ccm:author/text()",
-  series_name: "ccm:seriesname/text()",
-  bible_passage: "ccm:biblepassage/text()",
-  event: "ccm:event/text()",
-  series_subtitle: "ccm:seriessubtitle/text()",
-  image_url: "itunes:image/@href",
-  media_url: "media:content/@url",
-  media_file_size: "media:content/@fileSize",
-  media_mime_type: "media:content/@type",
-  media_medium: "media:content/@medium",
-  media_duration_in_seconds: "media:content/@duration" 
-}
+puts "Running with config:"
+pp config
+
+mapping = config[:rssXMLXPathMappings]
 
 # Fetch and parse HTML document
-doc = Nokogiri::XML(open(WP_RSS_FEED))
+doc = Nokogiri::XML(open(config[:sourceRSSFeed]))
 
 items = doc.xpath('//item' )
 
@@ -32,9 +21,10 @@ sermons = items.map do |item|
   mapping.map {|key,xpath| [key, item.xpath(xpath).text]}.to_h
 end
 
+keys_to_int = config[:keysToInteger]
+
 # Convert some keys to ints
 sermons = sermons.map do |sermon|
-  keys_to_int = [:media_duration_in_seconds, :media_file_size]
   keys_to_int.each do |key|
     sermon[key] = sermon[key].to_i
   end
@@ -47,18 +37,7 @@ sermons = sermons.map do |sermon|
   sermon
 end
 
-event_name_fixes = {
- "6PM Service" => "Evening Service",
- "PM Service" => "Evening Service",
- "The Bible Talks" => "Evening Service",
- "House Party 2015" => "Houseparty 2015",
- "6PM Sermon" => "Evening Service",
- "AM Service" => "Morning Service",
- "AM service" => "Morning Service",
- "Evening service" => "Evening Service",
- "Morning service" => "Morning Service",
- "The Bible talks" => "Evening Service",
-}
+event_name_fixes = config[:eventNameFixes]
 # Fix event names
 sermons = sermons.map do |sermon|
   event_name_fixes.each do |old,new|
@@ -91,6 +70,11 @@ series = sermons.map do |sermon|
 end.uniq
 
 events = sermons.map {|sermon| sermon[:event]}.uniq
+
+puts "sermons:  #{sermons.count}"
+puts "series:   #{series.count}"
+puts "events:   #{events.count}"
+puts "speakers: #{speakers.count}"
 
 File.write("fetched_sermons.json",JSON.pretty_generate(sermons))
 File.write("fetched_series.json",JSON.pretty_generate(series))

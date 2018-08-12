@@ -1,0 +1,37 @@
+{
+  "sourceRSSFeed": "http://www.christchurchmayfair.org/our-talks/podcast/",
+  "targetRegion": "eu-west-1",
+  "targetBucket": "media.christchurchmayfair.org",
+  "talksBucketFolder": "talks",
+  "imagesBucketFolder": "series-images",
+
+  "rssXMLXPathMappings": {
+    "title": "title/text()",
+    "speaker": "ccm:author/text()",
+    "series_name": "ccm:seriesname/text()",
+    "bible_passage": "ccm:biblepassage/text()",
+    "event": "ccm:event/text()",
+    "series_subtitle": "ccm:seriessubtitle/text()",
+    "image_url": "itunes:image/@href",
+    "media_url": "media:content/@url",
+    "media_file_size": "media:content/@fileSize",
+    "media_mime_type": "media:content/@type",
+    "media_medium": "media:content/@medium",
+    "media_duration_in_seconds": "media:content/@duration"
+  },
+
+  "keysToInteger" : ["media_duration_in_seconds", "media_file_size"],
+  
+  "eventNameFixes" : {
+     "6PM Service" : "Evening Service",
+     "PM Service" : "Evening Service",
+     "The Bible Talks" : "Evening Service",
+     "House Party 2015" : "Houseparty 2015",
+     "6PM Sermon" : "Evening Service",
+     "AM Service" : "Morning Service",
+     "AM service" : "Morning Service",
+     "Evening service" : "Evening Service",
+     "Morning service" : "Morning Service",
+     "The Bible talks" : "Evening Service"
+  }
+}

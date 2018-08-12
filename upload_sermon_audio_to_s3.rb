@@ -5,16 +5,17 @@ require 'uri'
 require 'json'
 require 'pp'
 
+config = JSON.parse(File.read("config.json"),:symbolize_names => true)
+
 sermons = JSON.parse(File.read(ARGV[0]),:symbolize_names => true)
 
 creds = JSON.load(File.read('awssecrets.json'))
 Aws.config[:credentials] = Aws::Credentials.new(creds['AccessKeyId'], creds['SecretAccessKey'])
 
-s3 = Aws::S3::Resource.new(region:'eu-west-1')
-media_bucket = s3.bucket('media.christchurchmayfair.org')
+s3 = Aws::S3::Resource.new(region:config[:targetRegion])
+media_bucket = s3.bucket(config[:targetBucket])
 
 sermons = sermons.map do |sermon|
-  pp sermon
   if sermon[:media_url] != ""
     uri = URI.parse(sermon[:media_url])
     file_name = File.basename(uri.path)
@@ -29,8 +30,8 @@ sermons = sermons.map do |sermon|
   
     sermon[:media_file_size] = File.size?(file_location)
     sermon[:media_file_md5] = `md5 -q #{file_location}`
-    
-    new_media_object = media_bucket.object("talks/"+file_name)
+
+    new_media_object = media_bucket.object(File.join(config[:talksBucketFolder],file_name))
   
     if ! new_media_object.exists?
       puts "Uploading #{file_name} to #{media_bucket.name}"
@@ -50,11 +51,3 @@ sermons = sermons.map do |sermon|
 end
 
 File.write("uploaded_sermons.json",JSON.pretty_generate(sermons))
-  
-
-
-
-
-
-
-
