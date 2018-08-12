@@ -9,6 +9,8 @@ config = JSON.parse(File.read("config.json"),:symbolize_names => true)
 
 sermons = JSON.parse(File.read(ARGV[0]),:symbolize_names => true)
 
+abort("You need a file called awssecrets.json in the current directory with two keys: AccessKeyId and SecretAccessKey") unless File.exist?("awssecrets.json")
+
 creds = JSON.load(File.read('awssecrets.json'))
 Aws.config[:credentials] = Aws::Credentials.new(creds['AccessKeyId'], creds['SecretAccessKey'])
 
