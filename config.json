@@ -5,6 +5,8 @@
   "talksBucketFolder": "talks",
   "imagesBucketFolder": "series-images",
 
+  "graphQLEndpoint" : "https://api.graph.cool/simple/v1/cjkqvvoxy2pyy0175cdmdy1mz",
+
   "rssXMLXPathMappings": {
     "title": "title/text()",
     "speaker": "ccm:author/text()",
@@ -17,10 +19,12 @@
     "media_file_size": "media:content/@fileSize",
     "media_mime_type": "media:content/@type",
     "media_medium": "media:content/@medium",
-    "media_duration_in_seconds": "media:content/@duration"
+    "media_duration_in_seconds": "media:content/@duration",
+    "preachedAt": "pubDate/text()"
   },
 
   "keysToInteger" : ["media_duration_in_seconds", "media_file_size"],
+  "keysToTimeStamp" : ["preachedAt"],
   
   "eventNameFixes" : {
      "6PM Service" : "Evening Service",
@@ -32,6 +36,7 @@
      "AM service" : "Morning Service",
      "Evening service" : "Evening Service",
      "Morning service" : "Morning Service",
-     "The Bible talks" : "Evening Service"
+     "The Bible talks" : "Evening Service",
+     "" : "Unnamed Event"
   }
 }

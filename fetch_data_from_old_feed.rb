@@ -4,6 +4,7 @@ require 'aws-sdk-s3'
 require 'uri'
 require 'pp'
 require 'json'
+require 'date'
 
 config = JSON.parse(File.read("config.json"),:symbolize_names => true)
 
@@ -17,7 +18,7 @@ doc = Nokogiri::XML(open(config[:sourceRSSFeed]))
 
 items = doc.xpath('//item' )
 
-sermons = items.map do |item|
+sermons = items.map do |item| 
   mapping.map {|key,xpath| [key, item.xpath(xpath).text]}.to_h
 end
 
@@ -26,7 +27,16 @@ keys_to_int = config[:keysToInteger]
 # Convert some keys to ints
 sermons = sermons.map do |sermon|
   keys_to_int.each do |key|
-    sermon[key] = sermon[key].to_i
+    sermon[key.to_sym] = sermon[key.to_sym].to_i
+  end
+  sermon
+end
+
+keys_to_date_time_iso8601 = config[:keysToTimeStamp]
+# Convert some keys to 8601 timestamps
+sermons = sermons.map do |sermon|
+  keys_to_date_time_iso8601.each do |key|
+    sermon[key.to_sym] = DateTime.parse(sermon[key.to_sym]).iso8601
   end
   sermon
 end
@@ -40,11 +50,7 @@ end
 event_name_fixes = config[:eventNameFixes]
 # Fix event names
 sermons = sermons.map do |sermon|
-  event_name_fixes.each do |old,new|
-    if sermon[:event] == old
-       sermon[:event] = new
-    end
-  end
+  sermon[:event] = event_name_fixes[sermon[:event].to_sym] if event_name_fixes[sermon[:event].to_sym]
   sermon
 end
 
@@ -63,9 +69,9 @@ end
 speakers = sermons.flat_map {|sermon| sermon[:speakers]}.uniq
 
 series = sermons.map do |sermon|
-  { series_name: sermon[:series_name],
-    series_subtitle: sermon[:series_subtitle],
-    series_image: sermon[:image_url]
+  { name: sermon[:series_name],
+    subtitle: sermon[:series_subtitle],
+    image: sermon[:image_url]
   }
 end.uniq
 

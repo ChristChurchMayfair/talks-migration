@@ -16,8 +16,11 @@ GEM
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.0)
     aws-sigv4 (1.0.3)
+    httparty (0.16.2)
+      multi_xml (>= 0.5.2)
     jmespath (1.4.0)
     mini_portile2 (2.3.0)
+    multi_xml (0.6.0)
     nokogiri (1.8.4)
       mini_portile2 (~> 2.3.0)
 
@@ -26,6 +29,7 @@ PLATFORMS
 
 DEPENDENCIES
   aws-sdk-s3
+  httparty (~> 0.16.2)
   nokogiri
 
 BUNDLED WITH

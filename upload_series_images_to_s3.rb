@@ -18,14 +18,14 @@ s3 = Aws::S3::Resource.new(region:config[:targetRegion])
 media_bucket = s3.bucket(config[:targetBucket])
 
 serieses = serieses.map do |series|
-  if series[:series_image] != ""
-    uri = URI.parse(series[:series_image])
+  if series[:image] != ""
+    uri = URI.parse(series[:image])
     file_name = File.basename(uri.path)
     file_location = File.join("image-cache",file_name)
   
     if ! File.exist? (file_location)
-      puts "Downloading #{series[:series_image]}"
-      `curl -o #{file_location} #{series[:series_image]}`
+      puts "Downloading #{series[:image]}"
+      `curl -o #{file_location} #{series[:image]}`
     else
       puts "Already got #{file_name} locally - not downloading"
     end

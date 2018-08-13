@@ -3,3 +3,4 @@ uploaded*.json
 awssecrets.json
 sermon-cache/
 image-cache/
+graphcoolcreds.json
